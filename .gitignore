@@ -1,1 +1,4 @@
 test/
+build/
+out/
+*.class
