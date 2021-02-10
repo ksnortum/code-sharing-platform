@@ -13,9 +13,9 @@ public class CodeController {
     @Autowired
     private CodeContainerService codeContainerService;
 
-    @GetMapping(value = "/code", produces = "text/html")
-    public @ResponseBody String getCodeWeb() {
-        CodeContainer codeContainer = codeContainerService.getCodeContainer();
+    @GetMapping(value = "/code/{id}", produces = "text/html")
+    public @ResponseBody String getCodeByIdWeb(@PathVariable int id) {
+        CodeContainer codeContainer = codeContainerService.getById(id);
 
         return  "<!DOCTYPE html>\n" +
                 "<html>\n" +
@@ -34,7 +34,7 @@ public class CodeController {
     }
 
     @GetMapping("/code/new")
-    public @ResponseBody String formCodeWed() {
+    public @ResponseBody String formCodeWeb() {
         return  "<!DOCTYPE html> " +
                 "<html lang=\"en\"> " +
                 "<head> " +
@@ -42,7 +42,7 @@ public class CodeController {
                 "<meta name=\"viewport\" content=\"width=device-width\"> " +
                 "<title>Create</title> " +
                 //"<link href=\"css/get-code.css\" rel=\"stylesheet\" type=\"text/css\" /> " +
-                "<style>body { background-color: lightblue; }</style>" +
+                "<style>form { background-color: lightblue; }</style>" +
                 "</head> " +
                 "<body> " +
                 //"<script src=\"js/script.js\"></script> " +
@@ -72,12 +72,12 @@ public class CodeController {
     @PostMapping(value = "/api/code/new", consumes = "application/json")
     public ResponseEntity<String> saveCodeRest(@RequestBody CodeContainer codeContainer) {
         codeContainerService.save(codeContainer);
-        return new ResponseEntity<>("{}", HttpStatus.OK);
+        return new ResponseEntity<>(String.format("{ \"id\" : \"%d\" }", codeContainer.getId()), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/api/code", produces = "application/json")
-    public @ResponseBody CodeContainer getCodeRest() {
-        return codeContainerService.getCodeContainer();
+    @GetMapping(value = "/api/code/{id}", produces = "application/json")
+    public @ResponseBody CodeContainer getCodeByIdRest(@PathVariable int id) {
+        return codeContainerService.getById(id);
     }
 
 }

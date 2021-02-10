@@ -3,27 +3,27 @@ package platform.service;
 import org.springframework.stereotype.Service;
 import platform.model.CodeContainer;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class CodeContainerService {
-    private static final List<String> CODE = Arrays.asList(
-            "public static void main(String[] args) {",
-            "    SpringApplication.run(CodeSharingPlatform.class, args);",
-            "}"
-    );
+    private final List<CodeContainer> repository = new ArrayList<>();
 
-    // field with default values
-    private CodeContainer codeContainer =
-            new CodeContainer(String.join("\n", CODE));
+    public CodeContainer getById(int id) {
+        return repository.get(id);
+    }
 
-    public CodeContainer getCodeContainer() {
-        return codeContainer;
+    public List<CodeContainer> getAll() {
+        return repository;
     }
 
     public void save (CodeContainer codeContainer) {
-        this.codeContainer = codeContainer;
+        repository.add(codeContainer);
+
+        if (!repository.get(codeContainer.getId()).equals(codeContainer)) {
+            Exception e = new RuntimeException("Code container ID does not match repository ID");
+            e.printStackTrace();
+        }
     }
 }
