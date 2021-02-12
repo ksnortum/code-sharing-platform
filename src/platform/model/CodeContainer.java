@@ -10,18 +10,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CodeContainer {
     private static final String DATE_FORMATTER= "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-    private static final AtomicInteger COUNTER = new AtomicInteger(0);
+    private static final AtomicInteger COUNTER = new AtomicInteger(1);
 
     private final int id;
     private final String code;
     private final String date;
 
     public CodeContainer() {
-        id = COUNTER.getAndIncrement();
-        code = "    public static void main(String[] args) {\n" +
-                "        // Code goes here\n" +
-                "    }";
-        date = LocalDateTime.now().format(FORMATTER);
+        this("public static void main(String[] args) {\n" +
+             "    // Code goes here\n" +
+             "}");
     }
 
     public CodeContainer(String code) {
@@ -64,7 +62,8 @@ public class CodeContainer {
             return -1;
         }
 
-        return 0;
+        // Dates are the same, sort by ID ascending
+        return id - that.getId();
     }
 
     @Override

@@ -1,0 +1,16 @@
+body {
+    padding: 25px;
+}
+textarea {
+    width: 400px;
+    height: 100px;
+}
+button {
+    margin-top: 10px;
+}
+div.form {
+    padding: 10px;
+    background-color: lightblue;
+    border: solid;
+    width: 420px;
+}
