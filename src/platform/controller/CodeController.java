@@ -17,8 +17,8 @@ public class CodeController {
     private CodeContainerService codeContainerService;
 
     @GetMapping(value = "/code/{id}", produces = "text/html")
-    public String getCodeByIdWeb(@PathVariable int id, Model model) {
-        CodeContainer codeContainer = codeContainerService.getById(id);
+    public String findCodeByIdWeb(@PathVariable int id, Model model) {
+        CodeContainer codeContainer = codeContainerService.findById(id);
         model.addAttribute("codeContainer", codeContainer);
 
         return "code-by-id";
@@ -30,8 +30,8 @@ public class CodeController {
     }
 
     @GetMapping("/code/latest")
-    public String getLatestCodes(Model model) {
-        List<CodeContainer> codes = codeContainerService.getLatest();
+    public String findLatestCodes(Model model) {
+        List<CodeContainer> codes = codeContainerService.findLatest();
         model.addAttribute("codes", codes);
 
         return "latest-code";
@@ -45,13 +45,13 @@ public class CodeController {
     }
 
     @GetMapping(value = "/api/code/{id}", produces = "application/json")
-    public @ResponseBody CodeContainer getCodeByIdRest(@PathVariable int id) {
-        return codeContainerService.getById(id);
+    public @ResponseBody CodeContainer findCodeByIdRest(@PathVariable long id) {
+        return codeContainerService.findById(id);
     }
 
     @GetMapping(value = "/api/code/latest", produces = "application/json")
-    public @ResponseBody List<CodeContainer> getLatestCodeEntries() {
-        return codeContainerService.getLatest();
+    public @ResponseBody List<CodeContainer> findLatestCodeEntries() {
+        return codeContainerService.findLatest();
     }
 
 }

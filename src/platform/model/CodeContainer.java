@@ -2,34 +2,32 @@ package platform.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
+@Entity
+@Table(name = "code_container")
 public class CodeContainer implements Comparable<CodeContainer> {
     private static final String DATE_FORMATTER= "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-    private static final AtomicInteger COUNTER = new AtomicInteger(1);
 
-    private final int id;
-    private String code;
-    private String date;
-
-    public CodeContainer() {
-        id = COUNTER.getAndIncrement();
-        code = "public static void main(String[] args) {\n" +
-             "    // Code goes here\n" +
-             "}";
-        date = LocalDateTime.now().format(FORMATTER);
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+    private String code =
+            "public static void main(String[] args) {\n" +
+            "    // Code goes here\n" +
+            "}";
+    private String date = LocalDateTime.now().format(FORMATTER);
 
     public static LocalDateTime parse(String dateIn) {
         return LocalDateTime.parse(dateIn, FORMATTER);
     }
 
     @JsonIgnore
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -67,7 +65,7 @@ public class CodeContainer implements Comparable<CodeContainer> {
         }
 
         // Dates are the same, sort by ID ascending
-        return that.getId() - id;
+        return (int)(that.getId() - id);
     }
 
     @Override
