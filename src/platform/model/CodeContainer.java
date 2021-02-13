@@ -7,24 +7,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CodeContainer {
+public class CodeContainer implements Comparable<CodeContainer> {
     private static final String DATE_FORMATTER= "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER);
     private static final AtomicInteger COUNTER = new AtomicInteger(1);
 
     private final int id;
-    private final String code;
-    private final String date;
+    private String code;
+    private String date;
 
     public CodeContainer() {
-        this("public static void main(String[] args) {\n" +
-             "    // Code goes here\n" +
-             "}");
-    }
-
-    public CodeContainer(String code) {
         id = COUNTER.getAndIncrement();
-        this.code = code;
+        code = "public static void main(String[] args) {\n" +
+             "    // Code goes here\n" +
+             "}";
         date = LocalDateTime.now().format(FORMATTER);
     }
 
@@ -41,8 +37,16 @@ public class CodeContainer {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getDate() {
         return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class CodeContainer {
         }
 
         // Dates are the same, sort by ID ascending
-        return id - that.getId();
+        return that.getId() - id;
     }
 
     @Override

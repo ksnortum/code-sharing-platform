@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import platform.model.CodeContainer;
 import platform.service.CodeContainerService;
 
+import java.util.List;
+
 @Controller
 public class CodeController {
     @Autowired
@@ -27,15 +29,29 @@ public class CodeController {
         return "create-code";
     }
 
+    @GetMapping("/code/latest")
+    public String getLatestCodes(Model model) {
+        List<CodeContainer> codes = codeContainerService.getLatest();
+        model.addAttribute("codes", codes);
+
+        return "latest-code";
+    }
+
     @PostMapping(value = "/api/code/new", consumes = "application/json")
     public ResponseEntity<String> saveCodeRest(@RequestBody CodeContainer codeContainer) {
         codeContainerService.save(codeContainer);
+
         return new ResponseEntity<>(String.format("{ \"id\" : \"%d\" }", codeContainer.getId()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/api/code/{id}", produces = "application/json")
     public @ResponseBody CodeContainer getCodeByIdRest(@PathVariable int id) {
         return codeContainerService.getById(id);
+    }
+
+    @GetMapping(value = "/api/code/latest", produces = "application/json")
+    public @ResponseBody List<CodeContainer> getLatestCodeEntries() {
+        return codeContainerService.getLatest();
     }
 
 }
