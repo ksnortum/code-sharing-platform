@@ -6,11 +6,6 @@ div.stage {
   padding: 10px;
 }
 
-pre {
-  background-color: lightgray;
-  border: solid grey 2px;
-}
-
 span {
     color: green;
 }
