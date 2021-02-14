@@ -18,6 +18,8 @@ public class CodeContainer implements Comparable<CodeContainer> {
     private final String id;
     private String code;
     private String date;
+    private int time;
+    private int views;
 
     public static LocalDateTime parse(String dateIn) {
         return LocalDateTime.parse(dateIn, FORMATTER);
@@ -53,6 +55,22 @@ public class CodeContainer implements Comparable<CodeContainer> {
         this.date = date;
     }
 
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
+
     @Override
     public String toString() {
         return String.format("id = %s%ncode:%n%s%ndate = %s%n", id, code, date);
@@ -70,7 +88,7 @@ public class CodeContainer implements Comparable<CodeContainer> {
             return -1;
         }
 
-        // Dates are the same, sort by ID ascending
+        // Dates are the same, sort by ID ascending, TODO what does this mean with UUIDs?
         return id.compareTo(that.getId());
     }
 
