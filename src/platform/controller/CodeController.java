@@ -17,7 +17,7 @@ public class CodeController {
     private CodeContainerService codeContainerService;
 
     @GetMapping(value = "/code/{id}", produces = "text/html")
-    public String findCodeByIdWeb(@PathVariable int id, Model model) {
+    public String findCodeByIdWeb(@PathVariable String id, Model model) {
         CodeContainer codeContainer = codeContainerService.findById(id);
         model.addAttribute("codeContainer", codeContainer);
 
@@ -41,11 +41,11 @@ public class CodeController {
     public ResponseEntity<String> saveCodeRest(@RequestBody CodeContainer codeContainer) {
         codeContainerService.save(codeContainer);
 
-        return new ResponseEntity<>(String.format("{ \"id\" : \"%d\" }", codeContainer.getId()), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("{ \"id\" : \"%s\" }", codeContainer.getId()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/api/code/{id}", produces = "application/json")
-    public @ResponseBody CodeContainer findCodeByIdRest(@PathVariable long id) {
+    public @ResponseBody CodeContainer findCodeByIdRest(@PathVariable String id) {
         return codeContainerService.findById(id);
     }
 

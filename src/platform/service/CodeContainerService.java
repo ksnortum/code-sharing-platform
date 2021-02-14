@@ -14,11 +14,11 @@ public class CodeContainerService {
     @Autowired
     private CodeContainerRepository repository;
 
-    public CodeContainer findById(long id) {
+    public CodeContainer findById(String id) {
         Optional<CodeContainer> optionalCodeContainer = repository.findById(id);
 
         if (optionalCodeContainer.isEmpty()) {
-            Exception e = new RuntimeException(String.format("Code ID (%d) not found", id));
+            Exception e = new RuntimeException(String.format("Code ID (%s) not found", id));
             e.printStackTrace();
 
             return new CodeContainer();

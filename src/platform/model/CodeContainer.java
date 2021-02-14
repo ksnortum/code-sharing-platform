@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "code_container")
@@ -14,20 +15,25 @@ public class CodeContainer implements Comparable<CodeContainer> {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMATTER);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-    private String code =
-            "public static void main(String[] args) {\n" +
-            "    // Code goes here\n" +
-            "}";
-    private String date = LocalDateTime.now().format(FORMATTER);
+    private final String id;
+    private String code;
+    private String date;
 
     public static LocalDateTime parse(String dateIn) {
         return LocalDateTime.parse(dateIn, FORMATTER);
     }
 
+    public CodeContainer() {
+        UUID uuid = UUID.randomUUID();
+        id = uuid.toString();
+        code = "public static void main(String[] args) {\n" +
+               "    // Code goes here\n" +
+               "}";
+        date = LocalDateTime.now().format(FORMATTER);
+    }
+
     @JsonIgnore
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -49,7 +55,7 @@ public class CodeContainer implements Comparable<CodeContainer> {
 
     @Override
     public String toString() {
-        return String.format("id = %d%ncode:%n%s%ndate = %s%n", id, code, date);
+        return String.format("id = %s%ncode:%n%s%ndate = %s%n", id, code, date);
 
     }
 
@@ -65,7 +71,7 @@ public class CodeContainer implements Comparable<CodeContainer> {
         }
 
         // Dates are the same, sort by ID ascending
-        return (int)(that.getId() - id);
+        return id.compareTo(that.getId());
     }
 
     @Override
@@ -73,7 +79,9 @@ public class CodeContainer implements Comparable<CodeContainer> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CodeContainer that = (CodeContainer) o;
-        return id == that.id && code.equals(that.code) && date.equals(that.date);
+
+        // TODO The UUIDs will never be the same, remove id.equals(that.id)?
+        return id.equals(that.id) && code.equals(that.code) && date.equals(that.date);
     }
 
     @Override
