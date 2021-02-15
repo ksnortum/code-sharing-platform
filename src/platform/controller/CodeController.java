@@ -6,31 +6,49 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import platform.exception.CodeContainerIsHiddenException;
+import platform.exception.CodeContainerMissingException;
 import platform.model.CodeContainer;
 import platform.service.CodeContainerService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class CodeController {
     @Autowired
     private CodeContainerService codeContainerService;
 
-    @GetMapping(value = "/code/{id}", produces = "text/html")
-    public String findCodeByIdWeb(@PathVariable String id, Model model) {
-        CodeContainer codeContainer = codeContainerService.findById(id);
-        model.addAttribute("codeContainer", codeContainer);
-
-        return "code-by-id";
-    }
-
     @GetMapping("/code/new")
     public String createCodeWeb() {
         return "create-code";
     }
 
+    @GetMapping(value = "/code/{id}", produces = "text/html")
+    public String findCodeByIdWeb(@PathVariable String id, Model model) {
+        Optional<CodeContainer> codeContainerOptional = codeContainerService.findById(id);
+
+        if (codeContainerOptional.isEmpty()) {
+            throw new CodeContainerMissingException();
+        }
+
+        CodeContainer codeContainer = codeContainerOptional.get();
+
+        if (codeContainer.isHidden()) {
+            codeContainerService.delete(codeContainer);
+            throw new CodeContainerIsHiddenException();
+        }
+
+        codeContainer.incrementNumberOfTimesViewed();
+        codeContainerService.save(codeContainer);
+        model.addAttribute("codeContainer", codeContainer);
+
+        return "code-by-id";
+    }
+
     @GetMapping("/code/latest")
-    public String findLatestCodes(Model model) {
+    public String findLatestCodesWeb(Model model) {
         List<CodeContainer> codes = codeContainerService.findLatest();
         model.addAttribute("codes", codes);
 
@@ -45,13 +63,32 @@ public class CodeController {
     }
 
     @GetMapping(value = "/api/code/{id}", produces = "application/json")
-    public @ResponseBody CodeContainer findCodeByIdRest(@PathVariable String id) {
-        return codeContainerService.findById(id);
+    public @ResponseBody CodeContainer findCodeByIdRest(@PathVariable String id, HttpServletResponse response) {
+        Optional<CodeContainer> codeContainerOptional = codeContainerService.findById(id);
+
+        if (codeContainerOptional.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+
+            return new CodeContainer();
+        }
+
+        CodeContainer codeContainer = codeContainerOptional.get();
+
+        if (codeContainer.isHidden()) {
+            codeContainerService.delete(codeContainer);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+
+            return new CodeContainer();
+        }
+
+        codeContainer.incrementNumberOfTimesViewed();
+        codeContainerService.save(codeContainer);
+
+        return codeContainer;
     }
 
     @GetMapping(value = "/api/code/latest", produces = "application/json")
-    public @ResponseBody List<CodeContainer> findLatestCodeEntries() {
+    public @ResponseBody List<CodeContainer> findLatestCodesRest() {
         return codeContainerService.findLatest();
     }
-
 }

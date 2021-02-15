@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class CodeContainer implements Comparable<CodeContainer> {
     private String date;
     private int time;
     private int views;
+    private int numberOfTimesViewed;
 
     public static LocalDateTime parse(String dateIn) {
         return LocalDateTime.parse(dateIn, FORMATTER);
@@ -32,6 +34,29 @@ public class CodeContainer implements Comparable<CodeContainer> {
                "    // Code goes here\n" +
                "}";
         date = LocalDateTime.now().format(FORMATTER);
+        time = 0;
+        views = 0;
+        numberOfTimesViewed = 0;
+    }
+
+    public long remainingTime() {
+        LocalDateTime creationDate = parse(date);
+        LocalDateTime now = LocalDateTime.now();
+
+        return time - creationDate.until(now, ChronoUnit.SECONDS);
+    }
+
+    public int remainingViews() {
+        return views - numberOfTimesViewed;
+    }
+
+    public void incrementNumberOfTimesViewed() {
+        numberOfTimesViewed++;
+    }
+
+    @JsonIgnore
+    public boolean isHidden() {
+        return (time > 0 && remainingTime() <= 0) || (views > 0 && remainingViews() <= 0);
     }
 
     @JsonIgnore
@@ -71,10 +96,21 @@ public class CodeContainer implements Comparable<CodeContainer> {
         this.views = views;
     }
 
+    @JsonIgnore
+    public int getNumberOfTimesViewed() {
+        return numberOfTimesViewed;
+    }
+
+    public void setNumberOfTimesViewed(int numberOfTimesViewed) {
+        this.numberOfTimesViewed = numberOfTimesViewed;
+    }
+
     @Override
     public String toString() {
-        return String.format("id = %s%ncode:%n%s%ndate = %s%n", id, code, date);
-
+        return String.format("CodeContainer{ id = %s%n" +
+                "code:%n%s%n" +
+                "date = %s, time = %d, views = %d, numberOfTimesView = %d }",
+                id, code, date, time, views, numberOfTimesViewed);
     }
 
     public int compareTo(CodeContainer that) {

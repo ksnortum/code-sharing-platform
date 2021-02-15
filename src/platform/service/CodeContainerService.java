@@ -1,10 +1,12 @@
 package platform.service;
 
+import org.aspectj.apache.bcel.classfile.Code;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import platform.model.CodeContainer;
 import platform.repository.CodeContainerRepository;
 
+import java.sql.PreparedStatement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,30 +16,36 @@ public class CodeContainerService {
     @Autowired
     private CodeContainerRepository repository;
 
-    public CodeContainer findById(String id) {
-        Optional<CodeContainer> optionalCodeContainer = repository.findById(id);
-
-        if (optionalCodeContainer.isEmpty()) {
-            Exception e = new RuntimeException(String.format("Code ID (%s) not found", id));
-            e.printStackTrace();
-
-            return new CodeContainer();
-        }
-
-        return optionalCodeContainer.get();
+    public Optional<CodeContainer> findById(String id) {
+        return repository.findById(id);
     }
 
     public List<CodeContainer> findLatest() {
         List<CodeContainer> codes = new ArrayList<>();
-        repository.findAll().forEach(codes::add);
 
-        return codes.stream()
+        for (CodeContainer code : repository.findAll()) {
+            if (code.isHidden()) {
+                repository.delete(code);
+            } else {
+                codes.add(code);
+            }
+        }
+
+        codes = codes.stream()
                 .sorted()
                 .limit(10)
                 .collect(Collectors.toList());
+        codes.forEach(CodeContainer::incrementNumberOfTimesViewed);
+        codes.forEach(code -> repository.save(code));
+
+        return codes;
     }
 
-    public void save (CodeContainer codeContainer) {
+    public void save(CodeContainer codeContainer) {
         repository.save(codeContainer);
+    }
+
+    public void delete(CodeContainer codeContainer) {
+        repository.delete(codeContainer);
     }
 }
