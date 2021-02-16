@@ -12,13 +12,13 @@
 <body>
     <div class=stage>
         <span class=date id="load_date">${codeContainer.date}</span>
-        <#if codeContainer.views gt 0>
+        <#if codeContainer.hasViewRestriction() && codeContainer.views gte 0>
             <br/>
-            <span>${codeContainer.remainingViews()} more views allowed</span>
+            <span id="views_restriction">${codeContainer.views} more views allowed</span>
         </#if>
-        <#if codeContainer.time gt 0>
+        <#if codeContainer.originalTime gt 0 && codeContainer.time gte 0>
             <br/>
-            <span>The code will be available for ${codeContainer.remainingTime()} seconds</span>
+            <span id="time_restriction">The code will be available for ${codeContainer.time} seconds</span>
         </#if>
         <pre id="code_snippet"><code>${codeContainer.code}</code></pre>
     </div>

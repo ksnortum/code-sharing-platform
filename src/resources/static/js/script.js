@@ -1,8 +1,12 @@
 function send() {
+  var time = +document.getElementById("time_restriction").value
+  var views = +document.getElementById("views_restriction").value
   let object = {
     "code": document.getElementById("code_snippet").value,
-    "time": +document.getElementById("time_restriction").value,
-    "views": +document.getElementById("views_restriction").value
+    "time": time,
+    "originalTime": time,
+    "views": views,
+    "hasViewRestriction": views > 0
   };
   let json = JSON.stringify(object);
   let xhr = new XMLHttpRequest();

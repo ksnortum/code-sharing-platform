@@ -13,14 +13,6 @@
     <div class=stage>
         <#list codes as codeContainer>
             <span class=date id="load_date">${codeContainer.date}</span>
-            <#if codeContainer.views gt 0>
-                <br/>
-                <span>${codeContainer.remainingViews()} more views allowed</span>
-            </#if>
-            <#if codeContainer.time gt 0>
-                <br/>
-                <span>The code will be available for ${codeContainer.remainingTime()} seconds</span>
-            </#if>
             <pre id="code_snippet"><code>${codeContainer.code}</code></pre>
         </#list>
     </div>

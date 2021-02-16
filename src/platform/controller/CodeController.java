@@ -30,18 +30,28 @@ public class CodeController {
         Optional<CodeContainer> codeContainerOptional = codeContainerService.findById(id);
 
         if (codeContainerOptional.isEmpty()) {
-            throw new CodeContainerMissingException();
+            throw new CodeContainerMissingException("No code with this ID found");
         }
 
         CodeContainer codeContainer = codeContainerOptional.get();
 
-        if (codeContainer.isHidden()) {
-            codeContainerService.delete(codeContainer);
-            throw new CodeContainerIsHiddenException();
+        // Always update time
+        if (codeContainer.getOriginalTime() > 0) {
+            codeContainer.updateTime();
+            codeContainerService.save(codeContainer);
         }
 
-        codeContainer.incrementNumberOfTimesViewed();
-        codeContainerService.save(codeContainer);
+        if (codeContainer.isHidden()) {
+            codeContainerService.delete(codeContainer);
+            throw new CodeContainerIsHiddenException("One or more restrictions on this code have expired");
+        }
+
+        // This code is going to be displayed, so decrement views now
+        if (codeContainer.hasViewRestriction()) {
+            codeContainer.decrementViews();
+            codeContainerService.save(codeContainer);
+        }
+
         model.addAttribute("codeContainer", codeContainer);
 
         return "code-by-id";
@@ -57,6 +67,10 @@ public class CodeController {
 
     @PostMapping(value = "/api/code/new", consumes = "application/json")
     public ResponseEntity<String> saveCodeRest(@RequestBody CodeContainer codeContainer) {
+        int time = codeContainer.getTime();
+        int views = codeContainer.getViews();
+        codeContainer.setOriginalTime(time);
+        codeContainer.setHasViewRestriction(views > 0);
         codeContainerService.save(codeContainer);
 
         return new ResponseEntity<>(String.format("{ \"id\" : \"%s\" }", codeContainer.getId()), HttpStatus.OK);
@@ -74,6 +88,12 @@ public class CodeController {
 
         CodeContainer codeContainer = codeContainerOptional.get();
 
+        // Always updated time
+        if (codeContainer.getOriginalTime() > 0) {
+            codeContainer.updateTime();
+            codeContainerService.save(codeContainer);
+        }
+
         if (codeContainer.isHidden()) {
             codeContainerService.delete(codeContainer);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -81,8 +101,11 @@ public class CodeController {
             return new CodeContainer();
         }
 
-        codeContainer.incrementNumberOfTimesViewed();
-        codeContainerService.save(codeContainer);
+        // This code is going to be displayed, so decrement views now
+        if (codeContainer.hasViewRestriction()) {
+            codeContainer.decrementViews();
+            codeContainerService.save(codeContainer);
+        }
 
         return codeContainer;
     }

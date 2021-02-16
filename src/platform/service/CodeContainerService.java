@@ -1,13 +1,13 @@
 package platform.service;
 
-import org.aspectj.apache.bcel.classfile.Code;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import platform.model.CodeContainer;
 import platform.repository.CodeContainerRepository;
 
-import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,24 +21,15 @@ public class CodeContainerService {
     }
 
     public List<CodeContainer> findLatest() {
-        List<CodeContainer> codes = new ArrayList<>();
-
-        for (CodeContainer code : repository.findAll()) {
-            if (code.isHidden()) {
-                repository.delete(code);
-            } else {
-                codes.add(code);
-            }
-        }
-
-        codes = codes.stream()
-                .sorted()
-                .limit(10)
-                .collect(Collectors.toList());
-        codes.forEach(CodeContainer::incrementNumberOfTimesViewed);
-        codes.forEach(code -> repository.save(code));
-
-        return codes;
+//        List<CodeContainer> codes = new ArrayList<>();
+//        repository.findAll().forEach(codes::add);
+//
+//        return codes.stream()
+//                .filter(code -> code.getTime() == 0 && code.getViews() == 0)
+//                .sorted()
+//                .limit(10)
+//                .collect(Collectors.toList());
+        return repository.findTop10ByTimeEqualsAndViewsEqualsOrderByDateDesc(0, 0);
     }
 
     public void save(CodeContainer codeContainer) {
